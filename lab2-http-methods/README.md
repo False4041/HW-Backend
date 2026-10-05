@@ -22,6 +22,12 @@ CRUD объединяет четыре операции: создание, чт�
 
 ## Подготовка и запуск
 
+Создан файл `app.py`, импортирован Flask и создан объект приложения.
+
+![Создание приложения Flask](screenshots/app-created.png)
+
+*Рисунок 1 - Начало работы с app.py*
+
 Используются Python 3.14.2 и Flask 3.1.3. Команды PowerShell из папки проекта:
 
 ```powershell
@@ -34,7 +40,7 @@ python -m venv venv
 
 ![Запуск Flask в терминале](screenshots/server-start.png)
 
-*Рисунок 1 - Запуск сервера и успешный запрос GET /games*
+*Рисунок 2 - Запуск сервера и успешный запрос GET /games*
 
 В терминале видны сообщения `Debug mode: on`, `Restarting with stat` и ответ 200 для `GET /games`. Запрос корневого адреса `/` возвращает 404, поскольку такой маршрут не задан.
 
@@ -65,6 +71,10 @@ if __name__ == '__main__':
     app.run(port=3000, debug=True)
 ```
 
+![Код списка игр и обработчика GET](screenshots/games-code.png)
+
+*Рисунок 3 - Начальные данные и обработчик GET /games в app.py*
+
 ### Получение списка игр
 
 Обработчик `GET /games` возвращает количество записей и список игр. Начальные данные содержат Minecraft, Portal 2 и God of War.
@@ -77,7 +87,7 @@ http://127.0.0.1:3000/games
 
 ![Список игр в браузере](screenshots/games-all.png)
 
-*Рисунок 2 - JSON-ответ GET /games: count равен 3*
+*Рисунок 4 - JSON-ответ GET /games: count равен 3*
 
 ### Следующие этапы
 
@@ -110,4 +120,3 @@ HTTP 400 Bad Request. В JSON-ответе следует указать, как
 1. Лабораторная работа №2 «HTTP-методы: обработка GET, POST, PUT, DELETE»: средний уровень и вариант 12.
 2. [Flask: Quickstart](https://flask.palletsprojects.com/en/stable/quickstart/).
 3. [Postman: отправка запросов](https://learning.postman.com/docs/sending-requests/requests/).
-
