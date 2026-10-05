@@ -27,9 +27,23 @@ def validate_game(data):
         value = data.get(field)
         if not isinstance(value, str) or not value.strip():
             return f"Поле {field} должно быть непустой строкой"
+
     rating = data.get("rating")
     if type(rating) not in (int, float) or not 0 <= rating <= 10:
         return "Рейтинг должен быть числом от 0 до 10"
     return None
+
+
+@app.route('/games', methods=['POST'])
+def create_game():
+    data = request.get_json(silent=True)
+    error = validate_game(data)
+
+    if error is not None:
+        return jsonify({"error": error}), 400
+
+    return jsonify(data), 200
+
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
