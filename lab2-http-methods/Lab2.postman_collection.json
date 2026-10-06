@@ -334,7 +334,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url}}/games?search=MiNe"
+            "url": "{{base_url}}/games?search=mine"
           },
           "event": [
             {
