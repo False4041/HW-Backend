@@ -90,7 +90,6 @@ def delete_item(item_id):
     if item is None:
         return jsonify({"error": "Товар не найден"}), 404
     items.remove(item)
-    # В практическом примере методички возвращается 200 с JSON.
     return jsonify({"message": "Элемент удалён", "deleted": item}), 200
 
 
@@ -100,5 +99,4 @@ def route_not_found(error):
 
 
 if __name__ == "__main__":
-    # Другой порт позволяет одновременно запустить API игр.
     app.run(port=3001, debug=True)
