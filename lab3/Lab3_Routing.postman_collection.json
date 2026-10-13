@@ -1,0 +1,116 @@
+{
+  "info": {
+    "name": "ЛР3 - Вариант 12 - Базовый уровень",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Практический пример - города",
+      "item": [
+        {
+          "name": "01 Все города",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/cities"
+          }
+        },
+        {
+          "name": "02 Город по ID",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/cities/1"
+          }
+        },
+        {
+          "name": "03 Площадь города",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/cities/1/area"
+          }
+        },
+        {
+          "name": "04 Города страны",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/countries/Россия/cities"
+          }
+        },
+        {
+          "name": "05 Нечисловой ID",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/cities/abc"
+          }
+        },
+        {
+          "name": "06 Город не найден",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/cities/999"
+          }
+        },
+        {
+          "name": "07 Неизвестный маршрут",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3001/unknown"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Вариант 12 - игры",
+      "item": [
+        {
+          "name": "01 Все игры",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/games"
+          }
+        },
+        {
+          "name": "02 Игра по ID",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/games/2"
+          }
+        },
+        {
+          "name": "03 Отзывы игры",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/games/2/reviews"
+          }
+        },
+        {
+          "name": "04 Игры платформы",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/platforms/PC/games"
+          }
+        },
+        {
+          "name": "05 Нечисловой ID",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/games/abc"
+          }
+        },
+        {
+          "name": "06 Игра не найдена",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/games/999"
+          }
+        },
+        {
+          "name": "07 Неизвестный маршрут",
+          "request": {
+            "method": "GET",
+            "url": "http://127.0.0.1:3000/unknown"
+          }
+        }
+      ]
+    }
+  ]
+}
