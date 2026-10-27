@@ -7,6 +7,7 @@ games = [
     {"id": 3, "title": "God of War", "genre": "Action", "platform": "PlayStation", "rating": 9.1}
 ]
 next_id = 4
+
 @app.route('/games', methods=['GET'])
 def get_games():
     return jsonify({
@@ -37,13 +38,24 @@ def validate_game(data):
 
 @app.route('/games', methods=['POST'])
 def create_game():
+    global next_id
     data = request.get_json(silent=True)
     error = validate_game(data)
 
     if error is not None:
         return jsonify({"error": error}), 400
 
-    return jsonify(data), 200
+    game = {
+        "id": next_id,
+        "title": data["title"].strip(),
+        "genre": data["genre"].strip(),
+        "platform": data["platform"].strip(),
+        "rating": data["rating"]
+    }
+    games.append(game)
+    next_id += 1
+
+    return jsonify(game), 201
 
 
 if __name__ == '__main__':
