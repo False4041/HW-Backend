@@ -193,9 +193,9 @@ curl.exe -i http://127.0.0.1:3000/anything-else
 
 *Рисунок 6 - GET /api/matches/1 подтверждает получение ID*
 
-![Рисунок 7 - GET /anything-else возвращает JSON с HTTP 404](screenshots/not-found.png)
+![Рисунок 7 - JSON-ответ при обращении к неизвестному адресу](screenshots/not-found.png)
 
-*Рисунок 7 - GET /anything-else возвращает JSON с HTTP 404*
+*Рисунок 7 - JSON-ответ при обращении к неизвестному адресу*
 
 ### 4.5 Логирование и перезапуск
 
