@@ -1,10 +1,8 @@
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-# Показываем русские сообщения без кодов вида \u0418.
 app.json.ensure_ascii = False
 
-# Игры хранятся в памяти. При перезапуске изменения пропадают.
 games = [
     {"id": 1, "title": "Minecraft", "genre": "Sandbox", "platform": "PC", "rating": 9.0},
     {"id": 2, "title": "Portal 2", "genre": "Puzzle", "platform": "PC", "rating": 9.5},
@@ -15,14 +13,12 @@ next_id = 4
 
 @app.route('/games', methods=['GET'])
 def get_games():
-    # Поиск по части названия без учёта регистра.
     search = request.args.get("search", "").strip().casefold()
     result = []
     for game in games:
         if search in game["title"].casefold():
             result.append(game)
 
-    # Проверяем параметры сортировки.
     sort = request.args.get("sort", "id")
     order = request.args.get("order", "asc")
     if sort not in ("id", "title", "genre", "platform", "rating"):
@@ -30,7 +26,6 @@ def get_games():
     if order not in ("asc", "desc"):
         return jsonify({"error": "Порядок должен быть asc или desc"}), 400
 
-    # Номер страницы и её размер должны быть положительными числами.
     try:
         page = int(request.args.get("page", "1"))
         limit = int(request.args.get("limit", "10"))
@@ -47,7 +42,6 @@ def get_games():
 
     result.sort(key=sort_key, reverse=(order == "desc"))
     count = len(result)
-    # Например, page=2 и limit=1: начало страницы имеет индекс 1.
     start = (page - 1) * limit
     return jsonify({
         "count": count,
@@ -73,7 +67,6 @@ def find_game(game_id):
 
 
 def validate_game(data):
-    # Проверка общая для создания и полного обновления игры.
     if not isinstance(data, dict):
         return "Нужно передать JSON-объект"
 
@@ -83,7 +76,6 @@ def validate_game(data):
             return f"Поле {field} должно быть непустой строкой"
 
     rating = data.get("rating")
-    # True и False не считаем числовым рейтингом.
     if type(rating) not in (int, float) or not 0 <= rating <= 10:
         return "Рейтинг должен быть числом от 0 до 10"
     return None
@@ -92,7 +84,6 @@ def validate_game(data):
 @app.route('/games', methods=['POST'])
 def create_game():
     global next_id
-    # Если JSON не передан или испорчен, data будет None.
     data = request.get_json(silent=True)
     error = validate_game(data)
 
@@ -123,7 +114,6 @@ def update_game(game_id):
     if error is not None:
         return jsonify({"error": error}), 400
 
-    # Меняем все четыре поля. ID остаётся прежним.
     game["title"] = data["title"].strip()
     game["genre"] = data["genre"].strip()
     game["platform"] = data["platform"].strip()
@@ -137,7 +127,6 @@ def delete_game(game_id):
     if game is None:
         return jsonify({"error": "Игра не найдена"}), 404
     games.remove(game)
-    # Ответ 204 не должен содержать JSON или другой текст.
     return '', 204
 
 
