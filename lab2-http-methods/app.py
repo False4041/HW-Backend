@@ -12,5 +12,12 @@ def get_games():
         "count": len(games),
         "games": games
     })
+@app.route('/games/<int:game_id>', methods=['GET'])
+def get_game(game_id):
+    for game in games:
+        if game["id"] == game_id:
+            return jsonify(game)
+
+    return jsonify({"error": "Игра не найдена"}), 404
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
