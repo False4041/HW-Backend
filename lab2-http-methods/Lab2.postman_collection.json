@@ -1,0 +1,1106 @@
+{
+  "info": {
+    "name": "ЛР2 - Игры - Вариант 12 - Средний уровень",
+    "description": "Зорькин Арсений Станиславович, ПИЖ-б-о-25-2(1). Перед запуском коллекции перезапустить оба сервера. Данные хранятся в памяти.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:3000",
+      "type": "string"
+    },
+    {
+      "key": "example_url",
+      "value": "http://127.0.0.1:3001",
+      "type": "string"
+    },
+    {
+      "key": "created_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "example_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Практический пример",
+      "item": [
+        {
+          "name": "01 Список товаров",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{example_url}}/items"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(3); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Товар по ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{example_url}}/items/2"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().price).to.eql(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Отсутствующий товар",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{example_url}}/items/999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Создание товара",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{example_url}}/items",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Новый товар\",\n  \"price\": 500,\n  \"quantity\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"example_id\", pm.response.json().id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Получение созданного товара",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{example_url}}/items/{{example_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().name).to.eql(\"Новый товар\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 Изменение товара",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{example_url}}/items/{{example_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Обновлённый товар\",\n  \"price\": 150,\n  \"quantity\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().price).to.eql(150); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Удаление товара",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{example_url}}/items/{{example_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().message).to.eql(\"Элемент удалён\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Проверка удаления товара",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{example_url}}/items/{{example_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 Неверные данные товара",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{example_url}}/items",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Без цены\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Игры: получение, поиск, сортировка, страницы",
+      "item": [
+        {
+          "name": "01 Список игр",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(3); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Игра по ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games/2"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().title).to.eql(\"Portal 2\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Игра не найдена",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games/999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Поиск по названию",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?search=MiNe"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(1); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games[0].title).to.eql(\"Minecraft\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Поиск без совпадений",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?search=absent"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(0); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games).to.eql([]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 Рейтинг по возрастанию",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?sort=rating&order=asc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games.map(g => g.id)).to.eql([1, 3, 2]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Рейтинг по убыванию",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?sort=rating&order=desc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games.map(g => g.id)).to.eql([2, 3, 1]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Вторая страница",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?page=2&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(3); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games.map(g => g.id)).to.eql([2]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 Поиск, сортировка и страница вместе",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?search=o&sort=title&order=asc&page=2&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(2); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games.map(g => g.id)).to.eql([2]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 Страница без записей",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?page=99&limit=1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().games).to.eql([]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 Неизвестное поле сортировки",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?sort=unknown"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 Неверный порядок",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?order=wrong"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 Нулевая страница",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?page=0"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 Нулевой размер страницы",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?limit=0"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 Страница не число",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games?page=abc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Игры: создание, изменение, удаление",
+      "item": [
+        {
+          "name": "01 Создание игры",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hades\",\n  \"genre\": \"Roguelike\",\n  \"platform\": \"PC\",\n  \"rating\": 9.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().title).to.eql(\"Hades\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_id\", pm.response.json().id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Получение созданной игры",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games/{{created_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().title).to.eql(\"Hades\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Полное изменение игры",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games/{{created_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hades II\",\n  \"genre\": \"Roguelike\",\n  \"platform\": \"PC\",\n  \"rating\": 8.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().title).to.eql(\"Hades II\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().rating).to.eql(8.5); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Проверка изменения",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games/{{created_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().title).to.eql(\"Hades II\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Неполное изменение",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games/{{created_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 9\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 Проверка сохранности после ошибки",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games/{{created_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().rating).to.eql(8.5); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Изменение отсутствующей игры",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games/999",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hades II\",\n  \"genre\": \"Roguelike\",\n  \"platform\": \"PC\",\n  \"rating\": 8.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Удаление отсутствующей игры",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/games/999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 Удаление игры",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/games/{{created_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 204\", function () { pm.response.to.have.status(204); });",
+                  "pm.test(\"Нет тела ответа\", function () { pm.expect(pm.response.text()).to.eql(\"\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 Проверка удаления",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games/{{created_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 Проверка итогового количества",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/games"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Проверка данных\", function () { pm.expect(pm.response.json().count).to.eql(3); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Игры: проверка входных данных",
+      "item": [
+        {
+          "name": "01 Нет обязательных полей",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hades\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Рейтинг вне диапазона",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hades\",\n  \"genre\": \"Roguelike\",\n  \"platform\": \"PC\",\n  \"rating\": 11\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Рейтинг строкой",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hades\",\n  \"genre\": \"Roguelike\",\n  \"platform\": \"PC\",\n  \"rating\": \"9.5\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Название из пробелов",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"   \",\n  \"genre\": \"Roguelike\",\n  \"platform\": \"PC\",\n  \"rating\": 9.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Без JSON",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/games"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 Некорректный JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/games",
+            "body": {
+              "mode": "raw",
+              "raw": "{broken",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Неизвестный маршрут",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/missing"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Ответ JSON\", function () { pm.expect(typeof pm.response.json()).to.eql(\"object\"); });",
+                  "pm.test(\"Есть описание ошибки\", function () { pm.expect(typeof pm.response.json().error).to.eql(\"string\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
