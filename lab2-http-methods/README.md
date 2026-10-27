@@ -61,6 +61,7 @@ games = [
     {"id": 2, "title": "Portal 2", "genre": "Puzzle", "platform": "PC", "rating": 9.5},
     {"id": 3, "title": "God of War", "genre": "Action", "platform": "PlayStation", "rating": 9.1}
 ]
+next_id = 4
 @app.route('/games', methods=['GET'])
 def get_games():
     return jsonify({
@@ -201,6 +202,14 @@ http://127.0.0.1:3000/games
 ![Отклонение неверного рейтинга в Postman](screenshots/post-invalid-rating.png)
 
 *Рисунок 15 - Проверка диапазона рейтинга через POST-запрос*
+
+### Подготовка ID новой игры
+
+После списка начальных игр добавлена переменная `next_id = 4`. Первые три номера уже заняты. Счётчик будет использоваться при создании новой игры и увеличиваться после добавления записи.
+
+![Счётчик ID новой игры](screenshots/next-game-id.png)
+
+*Рисунок 16 - Подготовка номера следующей игры*
 
 ### Следующие этапы
 

@@ -6,6 +6,7 @@ games = [
     {"id": 2, "title": "Portal 2", "genre": "Puzzle", "platform": "PC", "rating": 9.5},
     {"id": 3, "title": "God of War", "genre": "Action", "platform": "PlayStation", "rating": 9.1}
 ]
+next_id = 4
 @app.route('/games', methods=['GET'])
 def get_games():
     return jsonify({
