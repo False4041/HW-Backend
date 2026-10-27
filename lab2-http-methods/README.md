@@ -6,7 +6,7 @@
 **Вариант:** 12  
 **Уровень:** средний  
 **Технология:** Python + Flask  
-**Дата:** 05.10.2026
+**Дата:** 06.10.2026
 
 ## Цель работы
 
@@ -48,11 +48,122 @@ python -m venv venv
 
 Пример с товарами из методички адаптирован на Python и Flask. Исходный файл: [example.py](example.py). Сервер работает отдельно на порту 3001 и предоставляет GET, POST, PUT и DELETE для `/items`.
 
+`app.py` - индивидуальное задание про игры. `example.py` - отдельный практический пример про товары, который требуется в отчёте. Он не заменяет основной файл. Эти два сервера запускаются независимо, поэтому у них разные порты. Остальные файлы содержат отчёт, запросы и проверки; их не нужно запускать как сервер.
+
 ```powershell
 .\venv\Scripts\python.exe example.py
 ```
 
 В примере DELETE возвращает 200 и данные удалённого товара. В индивидуальном задании используется 204 без тела ответа, как требует средний уровень. Запросы практического примера находятся в первой папке коллекции Postman. Скриншоты этого примера ещё не добавлены.
+
+Код практического примера:
+
+```python
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+app.json.ensure_ascii = False
+items = [
+    {"id": 1, "name": "Товар 1", "price": 100, "quantity": 5},
+    {"id": 2, "name": "Товар 2", "price": 200, "quantity": 3},
+    {"id": 3, "name": "Товар 3", "price": 300, "quantity": 10}
+]
+next_id = 4
+
+
+def find_item(item_id):
+    for item in items:
+        if item["id"] == item_id:
+            return item
+    return None
+
+
+def validate_item(data):
+    if not isinstance(data, dict):
+        return "Нужно передать JSON-объект"
+
+    name = data.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return "name должен быть непустой строкой"
+
+    price = data.get("price")
+    if type(price) not in (int, float) or not 0 <= price < float("inf"):
+        return "price должен быть неотрицательным числом"
+
+    quantity = data.get("quantity")
+    if type(quantity) is not int or quantity < 0:
+        return "quantity должен быть целым неотрицательным числом"
+    return None
+
+
+@app.route('/items', methods=['GET'])
+def get_items():
+    return jsonify({"count": len(items), "items": items}), 200
+
+
+@app.route('/items/<int:item_id>', methods=['GET'])
+def get_item(item_id):
+    item = find_item(item_id)
+    if item is None:
+        return jsonify({"error": "Товар не найден"}), 404
+    return jsonify(item), 200
+
+
+@app.route('/items', methods=['POST'])
+def create_item():
+    global next_id
+    data = request.get_json(silent=True)
+    error = validate_item(data)
+    if error is not None:
+        return jsonify({"error": error}), 400
+
+    item = {
+        "id": next_id,
+        "name": data["name"].strip(),
+        "price": data["price"],
+        "quantity": data["quantity"]
+    }
+    items.append(item)
+    next_id += 1
+    return jsonify(item), 201
+
+
+@app.route('/items/<int:item_id>', methods=['PUT'])
+def replace_item(item_id):
+    item = find_item(item_id)
+    if item is None:
+        return jsonify({"error": "Товар не найден"}), 404
+
+    data = request.get_json(silent=True)
+    error = validate_item(data)
+    if error is not None:
+        return jsonify({"error": error}), 400
+
+    item["name"] = data["name"].strip()
+    item["price"] = data["price"]
+    item["quantity"] = data["quantity"]
+    return jsonify(item), 200
+
+
+@app.route('/items/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    item = find_item(item_id)
+    if item is None:
+        return jsonify({"error": "Товар не найден"}), 404
+    items.remove(item)
+    # В практическом примере методички возвращается 200 с JSON.
+    return jsonify({"message": "Элемент удалён", "deleted": item}), 200
+
+
+@app.errorhandler(404)
+def route_not_found(error):
+    return jsonify({"error": "Маршрут не найден"}), 404
+
+
+if __name__ == "__main__":
+    # Другой порт позволяет одновременно запустить API игр.
+    app.run(port=3001, debug=True)
+```
 
 ## Индивидуальное задание
 
@@ -66,7 +177,10 @@ python -m venv venv
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+# Показываем русские сообщения без кодов вида \u0418.
 app.json.ensure_ascii = False
+
+# Игры хранятся в памяти. При перезапуске изменения пропадают.
 games = [
     {"id": 1, "title": "Minecraft", "genre": "Sandbox", "platform": "PC", "rating": 9.0},
     {"id": 2, "title": "Portal 2", "genre": "Puzzle", "platform": "PC", "rating": 9.5},
@@ -74,11 +188,17 @@ games = [
 ]
 next_id = 4
 
+
 @app.route('/games', methods=['GET'])
 def get_games():
+    # Поиск по части названия без учёта регистра.
     search = request.args.get("search", "").strip().casefold()
-    result = [game for game in games if search in game["title"].casefold()]
+    result = []
+    for game in games:
+        if search in game["title"].casefold():
+            result.append(game)
 
+    # Проверяем параметры сортировки.
     sort = request.args.get("sort", "id")
     order = request.args.get("order", "asc")
     if sort not in ("id", "title", "genre", "platform", "rating"):
@@ -86,6 +206,7 @@ def get_games():
     if order not in ("asc", "desc"):
         return jsonify({"error": "Порядок должен быть asc или desc"}), 400
 
+    # Номер страницы и её размер должны быть положительными числами.
     try:
         page = int(request.args.get("page", "1"))
         limit = int(request.args.get("limit", "10"))
@@ -96,23 +217,28 @@ def get_games():
 
     def sort_key(game):
         value = game[sort]
-        return value.casefold() if isinstance(value, str) else value
+        if isinstance(value, str):
+            return value.casefold()
+        return value
 
     result.sort(key=sort_key, reverse=(order == "desc"))
     count = len(result)
+    # Например, page=2 и limit=1: начало страницы имеет индекс 1.
     start = (page - 1) * limit
     return jsonify({
         "count": count,
         "page": page,
         "limit": limit,
         "games": result[start:start + limit]
-    })
+    }), 200
+
+
 @app.route('/games/<int:game_id>', methods=['GET'])
 def get_game(game_id):
     game = find_game(game_id)
     if game is None:
         return jsonify({"error": "Игра не найдена"}), 404
-    return jsonify(game)
+    return jsonify(game), 200
 
 
 def find_game(game_id):
@@ -123,6 +249,7 @@ def find_game(game_id):
 
 
 def validate_game(data):
+    # Проверка общая для создания и полного обновления игры.
     if not isinstance(data, dict):
         return "Нужно передать JSON-объект"
 
@@ -132,6 +259,7 @@ def validate_game(data):
             return f"Поле {field} должно быть непустой строкой"
 
     rating = data.get("rating")
+    # True и False не считаем числовым рейтингом.
     if type(rating) not in (int, float) or not 0 <= rating <= 10:
         return "Рейтинг должен быть числом от 0 до 10"
     return None
@@ -140,6 +268,7 @@ def validate_game(data):
 @app.route('/games', methods=['POST'])
 def create_game():
     global next_id
+    # Если JSON не передан или испорчен, data будет None.
     data = request.get_json(silent=True)
     error = validate_game(data)
 
@@ -170,15 +299,12 @@ def update_game(game_id):
     if error is not None:
         return jsonify({"error": error}), 400
 
-    game.clear()
-    game.update({
-        "id": game_id,
-        "title": data["title"].strip(),
-        "genre": data["genre"].strip(),
-        "platform": data["platform"].strip(),
-        "rating": data["rating"]
-    })
-    return jsonify(game)
+    # Меняем все четыре поля. ID остаётся прежним.
+    game["title"] = data["title"].strip()
+    game["genre"] = data["genre"].strip()
+    game["platform"] = data["platform"].strip()
+    game["rating"] = data["rating"]
+    return jsonify(game), 200
 
 
 @app.route('/games/<int:game_id>', methods=['DELETE'])
@@ -187,6 +313,7 @@ def delete_game(game_id):
     if game is None:
         return jsonify({"error": "Игра не найдена"}), 404
     games.remove(game)
+    # Ответ 204 не должен содержать JSON или другой текст.
     return '', 204
 
 
@@ -347,6 +474,24 @@ http://127.0.0.1:3000/games
 
 Сначала выполняется поиск, затем сортировка, затем выделяется страница. `count` содержит общее число совпадений до пагинации, `games` - записи текущей страницы. По умолчанию используются `sort=id`, `order=asc`, `page=1`, `limit=10`. Страница за пределами списка возвращает пустой массив и статус 200.
 
+### Понятное объяснение новых частей
+
+`request.args` получает параметры из адреса. Например, в `/games?search=mine` параметр `search` равен `mine`. `request.get_json(silent=True)` читает тело POST или PUT; если JSON отсутствует или испорчен, возвращается `None`, и проверка выдаёт 400.
+
+Поиск написан обычным циклом: перебираем игры и добавляем подходящие в новый список `result`. `casefold()` приводит текст к одному регистру, поэтому `mine` и `MiNe` находят одну и ту же игру. Новый список нужен, чтобы сортировка ответа не меняла исходный порядок в `games`.
+
+`sort_key()` выбирает значение поля для сравнения: например, рейтинг игры. `result.sort()` сортирует список по этому значению. `reverse=True` включает обратный порядок, то есть `desc`.
+
+`int()` превращает строку параметра в целое число. `try` и `except ValueError` позволяют вернуть 400 для `page=abc`, а не завершить обработку с ошибкой сервера. Для страницы вычисляется начало `(page - 1) * limit`, затем срез `result[start:start + limit]` выбирает нужные записи. `count` остаётся общим числом найденных игр.
+
+`find_game()` ищет игру по ID обычным циклом. Если игра не найдена, функция возвращает `None`. Обработчики GET, PUT и DELETE в этом случае отвечают 404.
+
+`validate_game()` проверяет обязательные поля, их типы и рейтинг от 0 до 10. Одна проверка используется в POST и PUT. Проверка выполняется до изменения списка, поэтому ошибочный запрос не портит данные.
+
+PUT записывает новые значения в четыре поля найденной игры. Поле `id` сохраняется. DELETE удаляет игру через `games.remove(game)` и возвращает `'', 204`: пустую строку и код успешного удаления без тела ответа.
+
+`next_id` - счётчик для новых игр. POST берёт текущий номер, добавляет игру в список и увеличивает номер на один. `app.json.ensure_ascii = False` делает русские сообщения читаемыми в JSON.
+
 ### Проверки и материалы Postman
 
 В Postman выполнен запрос `GET /games?search=mine`. Сервер вернул 200 OK, одну найденную игру Minecraft и `count: 1`.
@@ -358,7 +503,7 @@ http://127.0.0.1:3000/games
 - [Коллекция Postman v2.1](Lab2.postman_collection.json): готовые запросы, тела JSON и проверки ответов.
 - [Проверки API](tests/test_api.py): создание, изменение, удаление, валидация, поиск, сортировка и страницы.
 - [Результаты автоматической проверки](TEST_RESULTS.md).
-- [Какие скриншоты добавить](SCREENSHOTS.md).
+- [Полный список запросов и состояния скриншотов](SCREENSHOTS.md).
 
 Перед запуском коллекции нужно перезапустить `app.py` и `example.py`, чтобы восстановить исходные данные. Коллекция выполняется по порядку, сохраняет ID созданных записей в переменные и удаляет созданные записи после проверок. Снимок поиска добавлен. Снимки PUT, DELETE, сортировки, пагинации, практического примера, Test Results и Collection Runner ещё предстоит добавить.
 
@@ -395,3 +540,4 @@ HTTP 400 Bad Request. В JSON-ответе следует указать, как
 1. Лабораторная работа №2 «HTTP-методы: обработка GET, POST, PUT, DELETE»: средний уровень и вариант 12.
 2. [Flask: Quickstart](https://flask.palletsprojects.com/en/stable/quickstart/).
 3. [Postman: отправка запросов](https://learning.postman.com/docs/sending-requests/requests/).
+4. Инструкция по настройке Postman для ЛР2: запросы, Test Results, экспорт коллекции и Collection Runner.

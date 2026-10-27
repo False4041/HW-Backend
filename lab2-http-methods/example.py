@@ -1,5 +1,4 @@
-from flask import Flask, jsonify, request, abort
-from werkzeug.exceptions import HTTPException
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
@@ -11,69 +10,95 @@ items = [
 next_id = 4
 
 
-@app.errorhandler(HTTPException)
-def http_error(error):
-    response = error.get_response()
-    response.data = app.json.dumps({"error": error.description})
-    response.content_type = "application/json"
-    return response
-
-
 def find_item(item_id):
     for item in items:
         if item["id"] == item_id:
             return item
-    abort(404, description="Товар не найден")
+    return None
 
 
-def read_item():
-    data = request.get_json(silent=True)
-    if not isinstance(data, dict) or not {"name", "price", "quantity"} <= data.keys():
-        abort(400, description="Нужны поля name, price, quantity")
-    if not isinstance(data["name"], str) or not data["name"].strip():
-        abort(400, description="name должен быть непустой строкой")
-    if type(data["price"]) not in (int, float) or not 0 <= data["price"] < float('inf'):
-        abort(400, description="price должен быть неотрицательным числом")
-    if type(data["quantity"]) is not int or data["quantity"] < 0:
-        abort(400, description="quantity должен быть целым неотрицательным числом")
-    return {key: data[key] for key in ("name", "price", "quantity")}
+def validate_item(data):
+    if not isinstance(data, dict):
+        return "Нужно передать JSON-объект"
+
+    name = data.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return "name должен быть непустой строкой"
+
+    price = data.get("price")
+    if type(price) not in (int, float) or not 0 <= price < float("inf"):
+        return "price должен быть неотрицательным числом"
+
+    quantity = data.get("quantity")
+    if type(quantity) is not int or quantity < 0:
+        return "quantity должен быть целым неотрицательным числом"
+    return None
 
 
-@app.get("/items")
+@app.route('/items', methods=['GET'])
 def get_items():
-    return jsonify({"count": len(items), "items": items})
+    return jsonify({"count": len(items), "items": items}), 200
 
 
-@app.get("/items/<int:item_id>")
+@app.route('/items/<int:item_id>', methods=['GET'])
 def get_item(item_id):
-    return jsonify(find_item(item_id))
+    item = find_item(item_id)
+    if item is None:
+        return jsonify({"error": "Товар не найден"}), 404
+    return jsonify(item), 200
 
 
-@app.post("/items")
+@app.route('/items', methods=['POST'])
 def create_item():
     global next_id
-    data = read_item()
-    item = {"id": next_id, **data}
-    next_id += 1
+    data = request.get_json(silent=True)
+    error = validate_item(data)
+    if error is not None:
+        return jsonify({"error": error}), 400
+
+    item = {
+        "id": next_id,
+        "name": data["name"].strip(),
+        "price": data["price"],
+        "quantity": data["quantity"]
+    }
     items.append(item)
+    next_id += 1
     return jsonify(item), 201
 
 
-@app.put("/items/<int:item_id>")
+@app.route('/items/<int:item_id>', methods=['PUT'])
 def replace_item(item_id):
     item = find_item(item_id)
-    data = read_item()
-    item.clear()
-    item.update({"id": item_id, **data})
-    return jsonify(item)
+    if item is None:
+        return jsonify({"error": "Товар не найден"}), 404
+
+    data = request.get_json(silent=True)
+    error = validate_item(data)
+    if error is not None:
+        return jsonify({"error": error}), 400
+
+    item["name"] = data["name"].strip()
+    item["price"] = data["price"]
+    item["quantity"] = data["quantity"]
+    return jsonify(item), 200
 
 
-@app.delete("/items/<int:item_id>")
+@app.route('/items/<int:item_id>', methods=['DELETE'])
 def delete_item(item_id):
     item = find_item(item_id)
+    if item is None:
+        return jsonify({"error": "Товар не найден"}), 404
     items.remove(item)
-    return jsonify({"message": "Элемент удалён", "deleted": item})
+    # В практическом примере методички возвращается 200 с JSON.
+    return jsonify({"message": "Элемент удалён", "deleted": item}), 200
+
+
+@app.errorhandler(404)
+def route_not_found(error):
+    return jsonify({"error": "Маршрут не найден"}), 404
 
 
 if __name__ == "__main__":
+    # Другой порт позволяет одновременно запустить API игр.
     app.run(port=3001, debug=True)
