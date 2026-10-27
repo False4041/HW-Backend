@@ -27,7 +27,9 @@ def validate_game(data):
         value = data.get(field)
         if not isinstance(value, str) or not value.strip():
             return f"Поле {field} должно быть непустой строкой"
-
+    rating = data.get("rating")
+    if type(rating) not in (int, float) or not 0 <= rating <= 10:
+        return "Рейтинг должен быть числом от 0 до 10"
     return None
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
