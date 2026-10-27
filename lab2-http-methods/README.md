@@ -53,7 +53,7 @@ python -m venv venv
 [Файл app.py](app.py)
 
 ```python
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 
 app = Flask(__name__)
 games = [
@@ -74,6 +74,16 @@ def get_game(game_id):
             return jsonify(game)
 
     return jsonify({"error": "Игра не найдена"}), 404
+def validate_game(data):
+    if not isinstance(data, dict):
+        return "Нужно передать JSON-объект"
+
+    for field in ("title", "genre", "platform"):
+        value = data.get(field)
+        if not isinstance(value, str) or not value.strip():
+            return f"Поле {field} должно быть непустой строкой"
+
+    return None
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
 ```
@@ -115,6 +125,16 @@ http://127.0.0.1:3000/games
 *Рисунок 7 - Сообщение об отсутствии игры с ID 999*
 
 Во втором ответе русские буквы записаны как последовательности `\uXXXX`. Это допустимое представление символов в JSON; сообщение означает «Игра не найдена».
+
+### Проверка текстовых полей
+
+Добавлена функция `validate_game(data)`. Она проверяет, что данные являются словарём, а поля `title`, `genre` и `platform` содержат непустые строки. Если обнаружена ошибка, функция возвращает её описание. Значение `None` означает, что эти проверки пройдены.
+
+![Проверка текстовых полей игры](screenshots/validation-text-fields.png)
+
+*Рисунок 8 - Проверка формата данных и текстовых полей*
+
+На этом этапе функция ещё не подключена к обработчику запроса. Проверка рейтинга и обработчик POST будут добавлены далее.
 
 ### Следующие этапы
 

@@ -1,4 +1,4 @@
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 
 app = Flask(__name__)
 games = [
@@ -19,5 +19,15 @@ def get_game(game_id):
             return jsonify(game)
 
     return jsonify({"error": "Игра не найдена"}), 404
+def validate_game(data):
+    if not isinstance(data, dict):
+        return "Нужно передать JSON-объект"
+
+    for field in ("title", "genre", "platform"):
+        value = data.get(field)
+        if not isinstance(value, str) or not value.strip():
+            return f"Поле {field} должно быть непустой строкой"
+
+    return None
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
