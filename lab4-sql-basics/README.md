@@ -35,18 +35,21 @@ python example.py
 
 [Код примера с городами](example.py). Создаётся таблица `cities` с полями `id`, `name`, `population`, `country`, `area`. Добавляются Москва, Санкт-Петербург, Новосибирск, Екатеринбург, Казань и Алматы.
 
-Проверены запросы из примера методички:
+Создание таблицы, добавление шести городов и выборка всех записей:
 
-| Запрос | Результат |
-| --- | --- |
-| `SELECT * FROM cities` | Все 6 городов |
-| `WHERE population > 1500000` | Москва, Санкт-Петербург, Новосибирск, Алматы |
-| `ORDER BY population DESC` | Москва, Санкт-Петербург, Алматы, Новосибирск, Екатеринбург, Казань |
-| `LIMIT 3` | Москва, Санкт-Петербург, Новосибирск |
-| `UPDATE cities SET population = 13500000 WHERE id = 1` | Население Москвы изменено |
-| `DELETE FROM cities WHERE id = 6` | Алматы удалён |
-| `COUNT`, `SUM`, `AVG`, `MAX`, `MIN` | 5; 23450000; 4690000; 13500000; 1250000 |
-| `WHERE name LIKE '%бург%'` | Санкт-Петербург, Екатеринбург |
+![Создание и заполнение таблицы городов](screenshots/cities-create-select.png)
+
+Фильтрация по населению и сортировка по убыванию:
+
+![Фильтрация и сортировка городов](screenshots/cities-filter-sort.png)
+
+Выборка первых трёх городов, изменение населения Москвы и удаление Алматы:
+
+![Ограничение выборки, изменение и удаление городов](screenshots/cities-limit-update-delete.png)
+
+Статистика и поиск по подстроке «бург»:
+
+![Статистика и поиск городов](screenshots/cities-statistics-search.png)
 
 ## Индивидуальное задание
 
@@ -56,27 +59,13 @@ python example.py
 
 ![Создание таблицы и добавление пяти игр](screenshots/create-insert.png)
 
-Фильтр `SELECT * FROM games WHERE rating >= ?` с параметром `9.2` возвращает:
+Выборка всех игр и фильтр `WHERE rating >= ?` с параметром `9.2`. Условию соответствуют Portal 2 и Hades:
 
-```text
-(2, 'Portal 2', 'Puzzle', 9.5)
-(4, 'Hades', 'Roguelike', 9.5)
-```
+![Все игры и фильтрация по рейтингу](screenshots/select-where.png)
 
-Запрос `UPDATE games SET rating = ? WHERE id = ?` с параметрами `(9.2, 1)` изменяет только Minecraft:
+Через UPDATE рейтинг Minecraft изменён с 9.0 на 9.2. Через DELETE удалена игра с ID 5 — Hollow Knight. Осталось четыре записи:
 
-```text
-(1, 'Minecraft', 'Sandbox', 9.2)
-```
-
-Запрос `DELETE FROM games WHERE id = ?` с параметром `5` удаляет Hollow Knight. Итоговая таблица:
-
-```text
-(1, 'Minecraft', 'Sandbox', 9.2)
-(2, 'Portal 2', 'Puzzle', 9.5)
-(3, 'God of War', 'Action', 9.1)
-(4, 'Hades', 'Roguelike', 9.5)
-```
+![Изменение и удаление игры](screenshots/update-delete.png)
 
 ## Контрольные вопросы
 
