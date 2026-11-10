@@ -5,3 +5,6 @@ __pycache__/
 .vs/
 .env
 *.log
+*.db
+*.db-*
+*.sqlite
